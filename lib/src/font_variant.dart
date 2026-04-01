@@ -134,7 +134,7 @@ class FontVariant {
 
 /// Mapping from font weight types to the 'weight' part of the Google Fonts API
 /// specific filename.
-const _fontWeightToFilenameWeightParts = {
+final _fontWeightToFilenameWeightParts = {
   FontWeight.w100: 'Thin',
   FontWeight.w200: 'ExtraLight',
   FontWeight.w300: 'Light',

@@ -1,5 +1,5 @@
-import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart' hide AssetManifest;
 import 'package:flutter_test/flutter_test.dart';
@@ -31,6 +31,10 @@ class FakePathProviderPlatform extends Fake
 
 const _fakeResponse = 'fake response body - success';
 const _fakeResponseFile = FontFile(url: '');
+final ByteData _fakeAssetManifestBinEncoded =
+    const StandardMessageCodec().encodeMessage(<String, Object?>{
+  'google_fonts/Foo-BlackItalic.ttf': 0,
+})!;
 
 // =============================== WARNING! ====================================
 // Do not add tests to this test file. Because the set up mocks a system message
@@ -52,10 +56,7 @@ void main() {
     // Add Foo-BlackItalic to mock asset bundle.
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMessageHandler('flutter/assets', (message) {
-      final Uint8List encoded =
-          utf8.encoder.convert('{"google_fonts/Foo-BlackItalic.ttf":'
-              '["google_fonts/Foo-BlackItalic.ttf"]}');
-      return Future.value(encoded.buffer.asByteData());
+      return Future.value(_fakeAssetManifestBinEncoded);
     });
 
     directory = await Directory.systemTemp.createTemp();

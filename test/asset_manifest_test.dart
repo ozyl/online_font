@@ -2,14 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:convert';
+import 'dart:typed_data';
 
-// ignore: undefined_hidden_name
 import 'package:flutter/services.dart' hide AssetManifest;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:online_font/src/asset_manifest.dart';
 
-const _fakeAssetManifestText = '{"value": ["fake"]}';
+const _fakeAssetManifestBinMessage = <String, Object?>{'fake': 0};
+final ByteData _fakeAssetManifestBinEncoded =
+    const StandardMessageCodec().encodeMessage(_fakeAssetManifestBinMessage)!;
 var _assetManifestLoadCount = 0;
 
 late AssetManifest assetManifest;
@@ -19,11 +20,12 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMessageHandler('flutter/assets', (message) {
       _assetManifestLoadCount++;
-      final Uint8List encoded = utf8.encoder.convert(_fakeAssetManifestText);
-      return Future.value(encoded.buffer.asByteData());
+      // The app's `AssetManifest` API reads `AssetManifest.bin` and decodes it
+      // using Flutter's standard message codec.
+      return Future.value(_fakeAssetManifestBinEncoded);
     });
-    // Disable cache so that we can see if AssetManifest.json is requested more
-    // than once.
+    // Disable cache so that we can see if the manifest bundle is requested
+    // more than once.
     assetManifest = AssetManifest(enableCache: false);
   });
 
